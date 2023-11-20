@@ -21,6 +21,7 @@ export const register = (req, res) => {
     });
   });
 };
+
 export const login = (req, res) => {
   //Chek User
   const q = "SELECT * FROM user WHERE username = ?";
