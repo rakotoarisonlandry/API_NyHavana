@@ -49,8 +49,10 @@ export const login = (req, res) => {
   });
 };
 export const logout = (req, res) => {
-  res.clearCookie("access_token",{
-    sameSite :"none",
-    secure:true
-  }).status(200).json("user has been logged out.")
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    sameSite: "None",  // Utilisez "None" pour permettre l'envoi du cookie dans des contextes tiers
+    secure: true,     // Assurez-vous que le cookie est envoyé uniquement via HTTPS
+  }).status(200).json("user has been logged out.");
 };
+
