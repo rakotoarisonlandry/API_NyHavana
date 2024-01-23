@@ -1,36 +1,40 @@
 import express from "express";
-import mysql from "mysql";
 import cors from "cors";
-import userRoutes from "./routes/users.js";
-import authRoutes from "./routes/auth.js";
-import postRoutes from "./routes/posts.js";
-import cookieParser from "cookie-parser";
-import multer from "multer";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import userRoute from "./Routes/userRoute.js";
 
 const app = express();
+dotenv.config();
 
+// Middleware pour l'analyse des données JSON dans les requêtes
 app.use(express.json());
-app.use(cookieParser());
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "../Front/public/upload");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + file.originalname);
-  },
+// Middleware pour gérer les problèmes de CORS (Cross-Origin Resource Sharing)
+app.use(cors());
+app.use("/api/users", userRoute);
+
+//1st parameter : route
+//2nd parameter fuction(callback)
+app.get("/", (req, res) => {
+  res.send("Welcome to our chat-App APIs");
 });
 
-const upload = multer({ storage });
-app.post("/api/upload", upload.single("file"), function (req, res) {
-  const file = req.file;
-  res.status(200).json(file.filename);
+const port = process.env.PORT || 5000;
+const uri = process.env.ATLAS_URI;
+// console.log(process.env.ATLAS_URI);
+
+// Set strictQuery to false to suppress the deprecation warning
+mongoose.set("strictQuery", false);
+
+// Démarrer le serveur et afficher un message lorsque le serveur est prêt
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
 
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/posts", postRoutes);
-
-app.listen(8800, () => {
-  console.log("Listening");
-});
+// Connect to MongoDB
+// 1st parameter: uri
+mongoose
+  .connect(uri)
+  .then(() => console.log("MongoDB connection established"))
+  .catch((error) => console.log("MongoDB connection failed:", error.message));
